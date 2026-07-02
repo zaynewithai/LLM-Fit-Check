@@ -12,7 +12,7 @@ export function SiteHeader() {
           </span>
           <span className="flex flex-col leading-none">
             <span className="font-[var(--font-display)] text-[0.95rem] font-semibold tracking-tight text-[var(--color-heading)]">
-              LLMFitCheck
+              LLM Fit Check
             </span>
             <span className="eyebrow mt-0.5 hidden sm:block">open-weight · memory calculator</span>
           </span>

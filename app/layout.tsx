@@ -26,12 +26,12 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "LLMFitCheck — what open LLMs fit your hardware?",
-    template: "%s · LLMFitCheck",
+    default: "LLM Fit Check — what open LLMs fit your hardware?",
+    template: "%s · LLM Fit Check",
   },
   description:
     "See which open-source LLMs run on your GPU or Mac, and what hardware a model needs. Live memory-footprint estimates with quantization, context length and KV cache.",
-  applicationName: "LLMFitCheck",
+  applicationName: "LLM Fit Check",
   keywords: [
     "LLM",
     "open source LLM",

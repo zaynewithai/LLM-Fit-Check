@@ -1,4 +1,4 @@
-# LLMFitCheck
+# LLM Fit Check
 
 A single-purpose tool for **open-weight LLMs** (no closed models). It answers two questions:
 
@@ -46,7 +46,7 @@ npm run dev            # http://localhost:3000
 | `DATABASE_URL` | yes | Postgres: `postgresql://user:pass@host:5432/llmfitcheck?schema=public` · SQLite (local): `file:./dev.db` |
 | `SYNC_SECRET` | yes | Long random string. `POST /api/sync` requires the `x-sync-secret: <SYNC_SECRET>` header. |
 | `HF_TOKEN` | no | Hugging Face token. Only needed to sync **gated** repos (some Meta/Google releases). Leave empty for public repos. Never sent to the browser. |
-| `NEXT_PUBLIC_APP_NAME` | no | App name shown in the UI. Defaults to "LLMFitCheck". |
+| `NEXT_PUBLIC_APP_NAME` | no | App name shown in the UI. Defaults to "LLM Fit Check". |
 
 > Switching SQLite ↔ Postgres is a one-line change: set `provider` in `prisma/schema.prisma` **and** `DATABASE_URL`.
 

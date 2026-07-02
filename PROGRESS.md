@@ -1,4 +1,4 @@
-# Build progress — LLMFitCheck
+# Build progress — LLM Fit Check
 
 ## Phase 1 — Scaffold ✅
 - Next.js 16 (App Router, Turbopack) + TypeScript + React 19 + Tailwind v4
