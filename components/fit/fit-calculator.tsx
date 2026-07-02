@@ -200,7 +200,11 @@ export function FitCalculator({
         className="mt-4 grid grid-cols-3 gap-2 sm:gap-3"
       >
         <SummaryStat label="Runs fast" count={counts.fast} color="var(--color-fast)" />
-        <SummaryStat label="Runs offloaded" count={counts.usable} color="var(--color-offload)" />
+        <SummaryStat
+          label={s.mode === "unified" ? "Runs tight" : "Runs offloaded"}
+          count={counts.usable}
+          color="var(--color-offload)"
+        />
         <SummaryStat label="Won't fit" count={counts["won't-fit"]} color="var(--color-wontfit)" />
       </section>
 
@@ -213,15 +217,21 @@ export function FitCalculator({
 
       {/* list */}
       <section aria-label="Model results" className="mt-3 grid gap-2.5 pb-16 sm:gap-3">
-        {fits.map((f, i) => (
-          <ModelRow
-            key={f.model.slug}
-            model={f.model}
-            fit={f.fit}
-            mode={s.mode}
-            index={i}
-          />
-        ))}
+        {fits.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-[var(--color-line)] p-10 text-center text-sm text-[var(--color-faint)]">
+            No models in the catalog yet. Run <code className="num">npm run seed</code> to populate it.
+          </div>
+        ) : (
+          fits.map((f, i) => (
+            <ModelRow
+              key={f.model.slug}
+              model={f.model}
+              fit={f.fit}
+              mode={s.mode}
+              index={i}
+            />
+          ))
+        )}
       </section>
     </div>
   );

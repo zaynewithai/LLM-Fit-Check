@@ -25,6 +25,19 @@ export function CatalogExplorer({
 
   const patch = (p: Partial<CatalogState>) => setS((prev) => ({ ...prev, ...p }));
 
+  // Escape closes the drawer; lock body scroll while it's open.
+  useEffect(() => {
+    if (!drawer) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setDrawer(false);
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [drawer]);
+
   useEffect(() => {
     const p = new URLSearchParams();
     if (s.search) p.set("s", s.search);

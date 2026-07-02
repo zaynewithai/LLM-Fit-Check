@@ -47,4 +47,23 @@
 - Detail page made dynamic (removed generateStaticParams) so container builds need no DB and pages stay fresh after sync
 - README: setup, env, sync, both deploy paths, cron examples, caveats, formula
 - Note: Docker image not built locally (Docker daemon was down); Dockerfile follows the standard multi-stage pattern
-## Phase 9 — Polish ⏳
+## Phase 9 — Polish ✅
+- Custom 404 (`app/not-found.tsx`); detail page `notFound()` for unknown slugs
+- Mode A empty state; mode-aware summary label (Runs offloaded / Runs tight)
+- Mobile filter drawer: Escape-to-close + body-scroll lock
+- Responsive header nav (short labels at 360px, full at ≥640px)
+- Reduced-motion handled in CSS; focus-visible rings; ARIA roles throughout (radiogroup/switch/combobox/listbox/dialog)
+- Final: typecheck + lint + 19 tests + build all green; all routes 200/404 verified
+
+## Definition of Done
+- [x] Both modes recompute live; results match `lib/memory.ts`
+- [x] Mode B maps footprint → named hardware + throughput bucket; custom-model entry works
+- [x] Catalog: search + family/size/dense-MoE/fits-my-rig filters + sort
+- [x] `npm run seed` populates; `npm run sync` refreshes from HF; failures non-fatal (keep last value)
+- [x] `POST /api/sync` rejected without `x-sync-secret` (401 verified)
+- [x] Cron on Vercel (vercel.json, GET+UA) and self-hosted (system cron curl); documented
+- [x] Responsive 360/1280px; keyboard-accessible; reduced-motion respected
+- [x] No secret reaches the browser; works with `HF_TOKEN` empty (gated repos skipped)
+- [x] Memory Budget Bar = signature element (VRAM marker + hatched overflow)
+- [x] README: setup, env, sync, both deploy paths, caveats, formula
+- [x] Unit tests pass — 744B@Q4=442GB (formula-exact), 744B@Q2≈228GB (the spec's ≈235 figure; discrepancy documented)
