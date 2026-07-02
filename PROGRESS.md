@@ -30,7 +30,11 @@
 - Hardware recommendations → 3 named cards (fast discrete / offloaded / unified Mac) with throughput bucket
 - "Drop a quant level" note when it won't fit a 24 GB GPU at current quant
 - Smoke-tested catalog + custom modes: HTTP 200, hardware/footprint/throughput render, no errors
-## Phase 6 — Catalog + filters + detail ⏳
+## Phase 6 — Catalog + filters + detail ✅
+- `/catalog` (server, async searchParams) → `CatalogExplorer` (client): search, family/size/arch filters, sort by params or footprint, "fits my rig" (reuses Mode A memory inputs + verdict filter)
+- Desktop sticky sidebar; mobile slide-in drawer
+- `/model/[slug]` detail (SSG via generateStaticParams, all 31 prerendered): metadata grid, HF link, per-quant memory table (FP16→Q2, smallest hardware per quant)
+- Smoke-tested: catalog filters + detail table + HF link render, no errors
 ## Phase 7 — Sync engine (HF → DB) ⏳
 ## Phase 8 — Scheduling + deploy (vercel.json, Dockerfile, README) ⏳
 ## Phase 9 — Polish ⏳
