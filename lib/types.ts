@@ -11,6 +11,8 @@ export interface CatalogModel {
   isMoE: boolean;
   openWeights: boolean;
   gated: boolean;
+  downloads: number;
+  likes: number;
   lastSyncedAt: string | null;
   createdAt: string | null;
 }

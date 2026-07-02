@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { Download } from "lucide-react";
 import type { CatalogModel } from "@/lib/types";
 import type { Footprint, Verdict } from "@/lib/memory";
 import { VerdictBadge } from "../verdict-badge";
-import { fmtGB, fmtParamLabel } from "@/lib/format";
+import { fmtGB, fmtParamLabel, fmtCompact } from "@/lib/format";
 
 export function ModelCard({
   model,
@@ -33,7 +34,13 @@ export function ModelCard({
       </div>
 
       <div className="mt-auto pt-3">
-        <div className="num text-[0.7rem] text-[var(--color-muted)]">{fmtParamLabel(model.totalParams, model.activeParams)}</div>
+        <div className="flex items-center justify-between text-[0.7rem] text-[var(--color-muted)]">
+          <span className="num">{fmtParamLabel(model.totalParams, model.activeParams)}</span>
+          <span className="flex items-center gap-1" title={`${model.downloads.toLocaleString()} downloads`}>
+            <Download className="h-3 w-3" />
+            <span className="num">{fmtCompact(model.downloads)}</span>
+          </span>
+        </div>
         <div className="mt-1 flex items-baseline justify-between">
           <span className="num text-lg font-semibold text-[var(--color-heading)]">{fmtGB(fp.totalGB)}</span>
           <span className="text-[0.65rem] uppercase text-[var(--color-faint)]">{quant}</span>

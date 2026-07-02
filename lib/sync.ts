@@ -1,8 +1,11 @@
-// Hugging Face catalog sync (spec §6). Server-only: imported only by the
-// /api/sync route handler and the `npm run sync` script — never by Client Components.
+// Hugging Face catalog sync (spec §6 + roster discovery). Server-only.
+// `runSync()` = discover popular models from the HF list, then refresh any
+// catalog models not covered by discovery (per-model fetch). Failures are
+// non-fatal: a failed fetch keeps the last good value.
 
 import { prisma } from "./prisma";
 import { config } from "./config";
+import { discoverModels } from "./discover";
 
 export interface SyncError {
   repo: string;
@@ -13,6 +16,8 @@ export interface SyncResult {
   startedAt: string;
   finishedAt: string;
   durationMs: number;
+  discovered: number;
+  added: number;
   success: number;
   failed: number;
   skipped: number;
@@ -40,11 +45,15 @@ interface FetchResult {
     safetensors?: { total?: number } | null;
     gated?: unknown;
     createdAt?: string;
+    downloads?: number;
+    likes?: number;
   };
 }
 
 async function fetchHfModel(repo: string, token: string): Promise<FetchResult> {
-  const url = `${HF_BASE}/${repo}?expand[]=safetensors&expand[]=gated&expand[]=createdAt`;
+  // The plain endpoint returns safetensors.total, downloads, likes, gated and
+  // createdAt by default. (Using expand[]=… actually hides downloads/likes.)
+  const url = `${HF_BASE}/${repo}`;
   const headers: Record<string, string> = { Accept: "application/json" };
   if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -62,32 +71,36 @@ async function fetchHfModel(repo: string, token: string): Promise<FetchResult> {
   }
 }
 
-export async function syncCatalog(): Promise<SyncResult> {
-  const startedAt = new Date();
-  const token = config.hfToken;
+// Refresh catalog models whose repo is NOT in `skipRepos` (i.e. not already
+// handled by discovery). Captures total + popularity + gated + createdAt.
+export async function syncCatalog(
+  token: string,
+  skipRepos?: Set<string>,
+): Promise<{ success: number; failed: number; skipped: number; errors: SyncError[] }> {
   const models = await prisma.model.findMany({ orderBy: { id: "asc" } });
-
   let success = 0;
   let failed = 0;
   let skipped = 0;
   const errors: SyncError[] = [];
 
   for (const m of models) {
+    if (skipRepos?.has(m.repo)) {
+      skipped++;
+      continue;
+    }
     try {
       const r = await fetchHfModel(m.repo, token);
       if (!r.ok) {
-        // 403 = gated repo we can't access (skip); everything else = failed fetch.
         if (r.status === 403) {
           skipped++;
           errors.push({ repo: m.repo, reason: "403 gated (needs HF_TOKEN)" });
         } else if (r.status === 404) {
           failed++;
-          errors.push({ repo: m.repo, reason: "404 not found — kept seeded value" });
+          errors.push({ repo: m.repo, reason: "404 not found — kept prior value" });
         } else {
           failed++;
           errors.push({ repo: m.repo, reason: `HTTP ${r.status || "network error"}` });
         }
-        // keep prior value — do not touch the row
       } else {
         const total = r.data?.safetensors?.total;
         if (total == null || !isFinite(total)) {
@@ -95,11 +108,16 @@ export async function syncCatalog(): Promise<SyncResult> {
           errors.push({ repo: m.repo, reason: "no safetensors.total exposed" });
         } else {
           const totalB = Math.round((total / 1e9) * 10) / 10;
-          const gated = normalizeGated(r.data?.gated);
-          const createdAt = r.data?.createdAt ? new Date(r.data.createdAt) : null;
           await prisma.model.update({
             where: { id: m.id },
-            data: { totalParams: totalB, gated, createdAt, lastSyncedAt: new Date() },
+            data: {
+              totalParams: totalB,
+              gated: normalizeGated(r.data?.gated),
+              createdAt: r.data?.createdAt ? new Date(r.data.createdAt) : null,
+              downloads: r.data?.downloads ?? 0,
+              likes: r.data?.likes ?? 0,
+              lastSyncedAt: new Date(),
+            },
           });
           success++;
         }
@@ -111,21 +129,31 @@ export async function syncCatalog(): Promise<SyncResult> {
     await delay(INTER_REQUEST_DELAY_MS);
   }
 
+  return { success, failed, skipped, errors };
+}
+
+// Full sync: discover popular models from the HF list, then refresh the rest.
+export async function runSync(): Promise<SyncResult> {
+  const startedAt = new Date();
+  const token = config.hfToken;
+
+  const disc = await discoverModels(token);
+  const rest = await syncCatalog(token, new Set(disc.discoveredRepos));
+
   const finishedAt = new Date();
   const durationMs = finishedAt.getTime() - startedAt.getTime();
+  const errors = [...disc.errors, ...rest.errors];
 
   await prisma.syncLog.create({
     data: {
       startedAt,
       finishedAt,
-      success,
-      failed,
-      skipped,
+      success: rest.success + disc.updated,
+      failed: rest.failed,
+      skipped: rest.skipped,
+      discovered: disc.added,
       message: errors.length
-        ? errors
-            .slice(0, 8)
-            .map((e) => `${e.repo}: ${e.reason}`)
-            .join(" | ")
+        ? errors.slice(0, 8).map((e) => `${e.repo}: ${e.reason}`).join(" | ")
         : null,
     },
   });
@@ -134,9 +162,11 @@ export async function syncCatalog(): Promise<SyncResult> {
     startedAt: startedAt.toISOString(),
     finishedAt: finishedAt.toISOString(),
     durationMs,
-    success,
-    failed,
-    skipped,
+    discovered: disc.added,
+    added: disc.added,
+    success: rest.success + disc.updated,
+    failed: rest.failed,
+    skipped: rest.skipped,
     errors,
   };
 }

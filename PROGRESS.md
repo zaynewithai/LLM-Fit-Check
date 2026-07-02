@@ -55,6 +55,14 @@
 - Reduced-motion handled in CSS; focus-visible rings; ARIA roles throughout (radiogroup/switch/combobox/listbox/dialog)
 - Final: typecheck + lint + 19 tests + build all green; all routes 200/404 verified
 
+## Phase 10 — HF roster discovery + popularity ✅
+- Model roster now comes from HF (`lib/discover.ts`): fetches top text-generation models sorted by downloads, filtered to canonical publishers + 0.5–2000B param range. Catalog grew 31 → 80 models.
+- Added `downloads`/`likes` to schema; catalog default sort = popularity; cards show download counts.
+- `lib/seed-data.ts` repurposed as a MoE/family/name enrichment override (HF doesn't expose MoE active params).
+- Fixed: single-model endpoint `expand[]` hid downloads/likes → switched to plain `/api/models/{repo}` (returns all fields).
+- Slug = `slugify(repo)` (globally unique) to avoid base-vs-instruct name collisions.
+- `runSync()` = discover + refresh; verified 80 models, 0 downloads=0, top = Qwen3 0.6B (28M). typecheck/lint/build/19 tests green.
+
 ## Definition of Done
 - [x] Both modes recompute live; results match `lib/memory.ts`
 - [x] Mode B maps footprint → named hardware + throughput bucket; custom-model entry works

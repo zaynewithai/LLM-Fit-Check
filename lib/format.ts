@@ -18,3 +18,10 @@ export function fmtParamLabel(total: number, active: number | null): string {
   if (active == null) return fmtParams(total);
   return `${fmtParams(total)} total · ${fmtParams(active)} active`;
 }
+
+export function fmtCompact(n: number): string {
+  if (!isFinite(n)) return "—";
+  if (n >= 1e6) return `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(0)}K`;
+  return `${n}`;
+}

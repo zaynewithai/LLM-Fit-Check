@@ -98,9 +98,10 @@ export function CatalogExplorer({
     if (s.arch === "dense") arr = arr.filter((x) => !x.model.isMoE);
     if (s.arch === "moe") arr = arr.filter((x) => x.model.isMoE);
     if (s.fit && hw) arr = arr.filter((x) => x.verdict !== "won't-fit");
-    arr.sort((a, b) =>
-      s.sort === "params" ? a.model.totalParams - b.model.totalParams : a.fp.totalGB - b.fp.totalGB,
-    );
+    arr.sort((a, b) => {
+      if (s.sort === "popularity") return b.model.downloads - a.model.downloads;
+      return s.sort === "params" ? a.model.totalParams - b.model.totalParams : a.fp.totalGB - b.fp.totalGB;
+    });
     return arr;
   }, [models, s.search, s.family, s.size, s.arch, s.fit, hw, s.quant, s.contextTokens, s.kvCacheQuantized, s.sort]);
 

@@ -25,7 +25,7 @@ async function main() {
     const result = await prisma.model.upsert({
       where: { repo: m.repo },
       create: {
-        slug: slugify(m.name),
+        slug: slugify(m.repo),
         name: m.name,
         repo: m.repo,
         family: m.family,

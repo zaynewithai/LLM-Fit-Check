@@ -45,7 +45,7 @@ export default async function CatalogPage({
     quant,
     contextTokens,
     kvCacheQuantized: str(sp.k) === "1",
-    sort: str(sp.sort) === "footprint" ? "footprint" : "params",
+    sort: str(sp.sort) === "params" || str(sp.sort) === "footprint" ? (str(sp.sort) as "params" | "footprint") : "popularity",
   };
 
   return <CatalogExplorer models={models} families={families} initial={initial} />;

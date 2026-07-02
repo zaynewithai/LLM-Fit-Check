@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import { syncCatalog } from "@/lib/sync";
+import { runSync } from "@/lib/sync";
 import { config } from "@/lib/config";
 
-// Sync is a long-ish operation (sequential HF API calls). Allow up to 60s on Vercel.
+// Sync is a long-ish operation (HF list + per-model refresh). Allow up to 60s on Vercel.
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-async function runSync() {
+async function runSyncHandler() {
   try {
-    const result = await syncCatalog();
+    const result = await runSync();
     return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json(
@@ -27,12 +27,10 @@ export async function POST(req: Request) {
   if (!provided || provided !== config.syncSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return runSync();
+  return runSyncHandler();
 }
 
-// GET /api/sync — Vercel Cron trigger. Vercel Cron can only send GET (no custom
-// headers), so we authenticate via its documented `vercel-cron` user-agent.
-// The endpoint still requires SYNC_SECRET to be configured (feature must be intentional).
+// GET /api/sync — Vercel Cron trigger (UA `vercel-cron`, since it can't send headers).
 export async function GET(req: Request) {
   if (!config.syncSecret) {
     return NextResponse.json({ error: "SYNC_SECRET is not configured on the server." }, { status: 500 });
@@ -41,5 +39,5 @@ export async function GET(req: Request) {
   if (!ua.includes("vercel-cron")) {
     return NextResponse.json({ error: "Unauthorized — use POST with x-sync-secret." }, { status: 401 });
   }
-  return runSync();
+  return runSyncHandler();
 }

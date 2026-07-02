@@ -66,12 +66,20 @@ npm run dev            # http://localhost:3000
 
 ## The sync engine
 
-`lib/sync.ts` fetches `safetensors.total` from the Hugging Face API for every model in the catalog and upserts the exact parameter count (rounded to 1 decimal), plus `gated` and `createdAt`. It is:
+`lib/sync.ts` runs a full sync = **discover** + **refresh**:
+
+1. **Discovery** (`lib/discover.ts`) — fetches the top `text-generation` models from the HF `/api/models` list, sorted by downloads, filtered to canonical publishers and a sane LLM parameter range (0.5B–2000B). Upserts them with **popularity** (`downloads`/`likes`), exact `totalParams` (from `safetensors.total`), `gated`, and `createdAt`. This is the **model roster source** — the catalog auto-includes new popular open LLMs.
+2. **Refresh** (`syncCatalog`) — for catalog models not covered by discovery (e.g. curated large models not in the top list), fetches each individually and updates the same fields.
+
+`lib/seed-data.ts` is kept as an **enrichment override**: for repos it knows, it supplies curated `activeParams` (MoE — HF doesn't expose this), `family`, and friendly `name`. So MoE accuracy is preserved while the roster comes from HF.
+
+The sync is:
 
 - **Idempotent** — safe to run repeatedly.
-- **Non-fatal** — a `403` (gated, no token), `404` (repo missing), `429`, or network error keeps the last good value and logs a warning.
-- **Polite** — sequential with a small delay between calls.
-- **Auditable** — records `lastSyncedAt` per model and a global `SyncLog` row.
+- **Non-fatal** — a `403` (gated, no token), `404`, `429`, or network error keeps the last good value and logs a warning.
+- **Auditable** — records `lastSyncedAt` per model and a global `SyncLog` row (with `discovered` count).
+
+The catalog's default sort is **popularity** (downloads desc); parameter-count and footprint sorts are also available.
 
 It is triggered three ways:
 
@@ -158,8 +166,10 @@ components/
 lib/
   memory.ts                calculation engine (pure, tested)
   hardware.ts              GB → named hardware (pure)
+  discover.ts              HF list discovery (roster + popularity)
   prisma.ts, db.ts, config.ts, sync.ts   server-only
-  seed-data.ts             the editable model catalog (31 models)
+  seed-data.ts             curated MoE/family/name override + bootstrap seed
+  slug.ts, format.ts, types.ts
 prisma/
   schema.prisma, seed.ts
 scripts/sync.ts            npm run sync entry

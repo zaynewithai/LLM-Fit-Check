@@ -45,3 +45,18 @@ export const SEED_MODELS: SeedModel[] = [
   { name: "GLM-5.2", repo: "zai-org/GLM-5.2", family: "Z.ai", total: 744, active: 40 },
   { name: "Kimi K2", repo: "moonshotai/Kimi-K2-Instruct", family: "Moonshot", total: 1000, active: 32 },
 ];
+
+// HF does not expose active params for MoE models, and family/name need curation.
+// Discovery/sync use this map to enrich HF-sourced models with curated data.
+export interface SeedOverride {
+  name: string;
+  family: string;
+  activeParams: number | null;
+}
+
+export const SEED_OVERRIDE: Record<string, SeedOverride> = Object.fromEntries(
+  SEED_MODELS.map((m) => [
+    m.repo,
+    { name: m.name, family: m.family, activeParams: m.active },
+  ]),
+);

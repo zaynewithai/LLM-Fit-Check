@@ -1,15 +1,15 @@
 // Manual sync entry point: `npm run sync`.
-// Fetches parameter counts from Hugging Face and updates the catalog.
+// Discovers popular models from Hugging Face + refreshes the catalog.
 
-import { syncCatalog } from "../lib/sync";
+import { runSync } from "../lib/sync";
 import { prisma } from "../lib/prisma";
 
 async function main() {
-  console.log("Syncing catalog from Hugging Face…\n");
-  const r = await syncCatalog();
+  console.log("Syncing catalog from Hugging Face (discover + refresh)…\n");
+  const r = await runSync();
   const secs = (r.durationMs / 1000).toFixed(1);
   console.log(
-    `\nDone in ${secs}s. ${r.success} synced, ${r.failed} failed, ${r.skipped} skipped.`,
+    `\nDone in ${secs}s. ${r.discovered} new discovered, ${r.success} refreshed, ${r.failed} failed, ${r.skipped} skipped.`,
   );
   if (r.errors.length) {
     console.log("\nIssues (non-fatal — prior values kept):");

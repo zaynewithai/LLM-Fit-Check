@@ -52,7 +52,7 @@ export interface CatalogState {
   quant: Quant;
   contextTokens: number;
   kvCacheQuantized: boolean;
-  sort: "params" | "footprint";
+  sort: "popularity" | "params" | "footprint";
 }
 
 export function Filters({
@@ -126,6 +126,7 @@ export function Filters({
             value={state.sort}
             onChange={(sort) => onChange({ sort })}
             options={[
+              { value: "popularity", label: "Popularity" },
               { value: "params", label: "Parameter count" },
               { value: "footprint", label: "Memory footprint" },
             ]}
@@ -196,7 +197,7 @@ export const CATALOG_DEFAULTS: Omit<CatalogState, never> = {
   quant: DEFAULT_QUANT,
   contextTokens: DEFAULT_CONTEXT,
   kvCacheQuantized: false,
-  sort: "params",
+  sort: "popularity",
 };
 
 export const QUANT_LABELS = QUANTS;

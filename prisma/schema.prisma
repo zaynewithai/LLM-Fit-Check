@@ -22,12 +22,15 @@ model Model {
   isMoE         Boolean   @default(false)
   openWeights   Boolean   @default(true)
   gated         Boolean   @default(false)
+  downloads     Int       @default(0)
+  likes         Int       @default(0)
   createdAt     DateTime?
   lastSyncedAt  DateTime?
 
   @@index([family])
   @@index([totalParams])
   @@index([isMoE])
+  @@index([downloads])
 }
 
 model SyncLog {
@@ -37,6 +40,7 @@ model SyncLog {
   success     Int       @default(0)
   failed      Int       @default(0)
   skipped     Int       @default(0)
+  discovered  Int       @default(0)
   message     String?
 
   @@map("sync_log")

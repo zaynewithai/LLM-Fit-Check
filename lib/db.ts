@@ -14,6 +14,8 @@ function toModel(r: {
   isMoE: boolean;
   openWeights: boolean;
   gated: boolean;
+  downloads: number;
+  likes: number;
   lastSyncedAt: Date | null;
   createdAt: Date | null;
 }): CatalogModel {
@@ -27,6 +29,8 @@ function toModel(r: {
     isMoE: r.isMoE,
     openWeights: r.openWeights,
     gated: r.gated,
+    downloads: r.downloads,
+    likes: r.likes,
     lastSyncedAt: r.lastSyncedAt ? r.lastSyncedAt.toISOString() : null,
     createdAt: r.createdAt ? r.createdAt.toISOString() : null,
   };
