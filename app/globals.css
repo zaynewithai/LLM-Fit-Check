@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+/*
+  LLM Fit Finder — "Precision Instrument" theme.
+  Deep blue-slate control panel; three verdict colors drive the identity:
+  teal = fast, amber = offloaded, coral = won't fit. Periwinkle accent.
+  Monospace for all numeric readouts.
+*/
+
+@theme {
+  /* surfaces */
+  --color-bg: #0a1120;
+  --color-bg-2: #0c1426;
+  --color-surface: #0f1828;
+  --color-surface-2: #131e33;
+  --color-elevated: #16223b;
+
+  /* lines */
+  --color-line: #1d2a44;
+  --color-line-strong: #2c3d5e;
+
+  /* text */
+  --color-ink: #e9eef9;
+  --color-heading: #f6f9ff;
+  --color-muted: #93a0bf;
+  --color-faint: #5d6b8c;
+
+  /* verdict identity */
+  --color-fast: #2dd4bf;
+  --color-fast-soft: #143a36;
+  --color-offload: #f4b740;
+  --color-offload-soft: #3a2f10;
+  --color-wontfit: #fb7185;
+  --color-wontfit-soft: #3a1822;
+
+  /* accent */
+  --color-accent: #a5b4fc;
+  --color-accent-soft: #1c2240;
+
+  /* fonts */
+  --font-display: var(--font-chakra), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+:root {
+  --grid-line: rgba(150, 170, 220, 0.04);
+  --grid-glow: rgba(40, 70, 130, 0.18);
+  color-scheme: dark;
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1, "cv01" 1;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, var(--grid-glow), transparent 70%),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 100% 100%, 44px 44px, 44px 44px;
+  background-attachment: fixed;
+  background-position: top, -1px -1px, -1px -1px;
+  min-height: 100dvh;
+}
+
+/* typographic defaults */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--color-heading);
+  letter-spacing: -0.01em;
+}
+
+/* numeric readouts always mono */
+[data-mono], .num {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1;
+}
+
+/* small uppercase technical labels */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* focus ring — visible on the dark slate */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* range slider — instrument styled */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-surface-2);
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg);
+  box-shadow: 0 0 0 1px var(--color-accent), 0 0 12px rgba(165, 180, 252, 0.5);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-bg);
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+/* select + input chrome */
+select, input[type="text"], input[type="number"] {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+}
+
+/* hatched overflow pattern for budget bars */
+.hatch {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--color-wontfit) 0,
+    var(--color-wontfit) 6px,
+    color-mix(in srgb, var(--color-wontfit) 55%, transparent) 6px,
+    color-mix(in srgb, var(--color-wontfit) 55%, transparent) 12px
+  );
+}
+
+/* bar fill transition */
+.bar-fill {
+  transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms ease;
+}
+
+/* staggered reveal for list rows */
+@keyframes row-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.row-in {
+  animation: row-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* subtle pulse for live indicator */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.live-dot {
+  animation: live-pulse 1.8s ease-in-out infinite;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 999px;
+  border: 3px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover { background: #3a4d72; }
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .bar-fill { transition: none; }
+}
