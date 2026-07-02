@@ -8,7 +8,10 @@
 - Scripts: seed, sync, test, typecheck, lint, prisma:push/generate
 - `npm run build`, `lint`, `typecheck` all green
 
-## Phase 2 — Data + seed ⏳
+## Phase 2 — Data + seed ✅
+- Prisma schema (`Model` + `SyncLog`) applied; SQLite `dev.db` in sync
+- `lib/seed-data.ts` = the 31-model catalog (single editable file); `prisma/seed.ts` upserts by repo, non-destructive on re-seed
+- `npm run seed` → 31 models, 14 MoE (verified: GLM-5.2 744B/40B, Kimi K2 1000B/32B)
 ## Phase 3 — Engine (lib/memory.ts + lib/hardware.ts + tests) ⏳
 ## Phase 4 — Mode A UI ⏳
 ## Phase 5 — Mode B UI ⏳
