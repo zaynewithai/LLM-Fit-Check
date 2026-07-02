@@ -35,6 +35,10 @@
 - Desktop sticky sidebar; mobile slide-in drawer
 - `/model/[slug]` detail (SSG via generateStaticParams, all 31 prerendered): metadata grid, HF link, per-quant memory table (FP16→Q2, smallest hardware per quant)
 - Smoke-tested: catalog filters + detail table + HF link render, no errors
-## Phase 7 — Sync engine (HF → DB) ⏳
+## Phase 7 — Sync engine ✅
+- `lib/sync.ts`: fetches `safetensors.total` from HF API per repo, upserts exact `totalB` (round 1 dp), `gated`, `createdAt`, `lastSyncedAt`; sequential with 200ms delay; graceful 403/404/429/network handling (keeps prior value); records `SyncLog`
+- `scripts/sync.ts` → `npm run sync`; `app/api/sync/route.ts` → `POST /api/sync` guarded by `x-sync-secret`
+- Verified: 401 without/wrong secret, 405 on GET, 200 with correct secret; real sync of 31 repos in ~13s (GLM-5.2 744→753.3, Kimi K2 1000→1026.5); lastSyncedAt + SyncLog recorded
+- Removed `server-only` import from db/sync (it breaks tsx scripts; optional per Next docs)
 ## Phase 8 — Scheduling + deploy (vercel.json, Dockerfile, README) ⏳
 ## Phase 9 — Polish ⏳

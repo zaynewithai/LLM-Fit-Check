@@ -1,7 +1,6 @@
 // Server-only data access. Reads from Prisma and maps to the serializable
 // CatalogModel shape that crosses the RSC boundary into Client Components.
 
-import "server-only";
 import { prisma } from "./prisma";
 import type { CatalogModel } from "./types";
 
