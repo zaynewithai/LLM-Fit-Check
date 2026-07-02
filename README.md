@@ -1,4 +1,4 @@
-# LLM Fit Finder
+# LLMFitCheck
 
 A single-purpose tool for **open-weight LLMs** (no closed models). It answers two questions:
 
@@ -43,10 +43,10 @@ npm run dev            # http://localhost:3000
 
 | Variable | Required | Description |
 |---|---|---|
-| `DATABASE_URL` | yes | Postgres: `postgresql://user:pass@host:5432/llmfit?schema=public` · SQLite (local): `file:./dev.db` |
+| `DATABASE_URL` | yes | Postgres: `postgresql://user:pass@host:5432/llmfitcheck?schema=public` · SQLite (local): `file:./dev.db` |
 | `SYNC_SECRET` | yes | Long random string. `POST /api/sync` requires the `x-sync-secret: <SYNC_SECRET>` header. |
 | `HF_TOKEN` | no | Hugging Face token. Only needed to sync **gated** repos (some Meta/Google releases). Leave empty for public repos. Never sent to the browser. |
-| `NEXT_PUBLIC_APP_NAME` | no | App name shown in the UI. Defaults to "LLM Fit Finder". |
+| `NEXT_PUBLIC_APP_NAME` | no | App name shown in the UI. Defaults to "LLMFitCheck". |
 
 > Switching SQLite ↔ Postgres is a one-line change: set `provider` in `prisma/schema.prisma` **and** `DATABASE_URL`.
 
@@ -107,15 +107,15 @@ The spec's Definition-of-Done cites a check "744B @ Q4 / 32K ≈ 235 GB". The §
 A daily `curl` POST with the secret header:
 
 ```cron
-# /etc/cron.d/llm-fit-finder  — sync daily at 04:00
+# /etc/cron.d/llmfitcheck  — sync daily at 04:00
 0 4 * * * appuser /usr/bin/curl -fsS -X POST http://localhost:3000/api/sync \
-  -H "x-sync-secret: CHANGE_ME" -o /var/log/llmfit-sync.log
+  -H "x-sync-secret: CHANGE_ME" -o /var/log/llmfitcheck-sync.log
 ```
 
 Or run the script directly from a checkout:
 
 ```cron
-0 4 * * * appuser cd /opt/llm-fit-finder && /usr/bin/npm run sync >> /var/log/llmfit-sync.log 2>&1
+0 4 * * * appuser cd /opt/llmfitcheck && /usr/bin/npm run sync >> /var/log/llmfitcheck-sync.log 2>&1
 ```
 
 ## Deployment
@@ -131,18 +131,18 @@ Or run the script directly from a checkout:
 
 ```bash
 # Build
-docker build -t llm-fit-finder .
+docker build -t llmfitcheck .
 
 # Migrate + seed the DB once (needs prisma; run from a checkout or the builder stage)
-DATABASE_URL="postgresql://user:pass@host:5432/llmfit" npx prisma db push
-DATABASE_URL="postgresql://user:pass@host:5432/llmfit" npm run seed
+DATABASE_URL="postgresql://user:pass@host:5432/llmfitcheck" npx prisma db push
+DATABASE_URL="postgresql://user:pass@host:5432/llmfitcheck" npm run seed
 
 # Run
 docker run -d -p 3000:3000 \
-  -e DATABASE_URL="postgresql://user:pass@host:5432/llmfit" \
+  -e DATABASE_URL="postgresql://user:pass@host:5432/llmfitcheck" \
   -e SYNC_SECRET="your-secret" \
   -e HF_TOKEN="" \
-  --name llm-fit-finder llm-fit-finder
+  --name llmfitcheck llmfitcheck
 ```
 
 For **SQLite in Docker**, mount a volume for the database file and set `DATABASE_URL=file:/data/dev.db`, then run `prisma db push` against that path. Postgres is recommended for production.

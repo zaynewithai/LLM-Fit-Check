@@ -1,4 +1,4 @@
-// Prisma schema for LLM Fit Finder.
+// Prisma schema for LLMFitCheck.
 // Switching between SQLite (local) and PostgreSQL (prod) is a one-line change
 // to the `provider` below — the field types are provider-agnostic.
 

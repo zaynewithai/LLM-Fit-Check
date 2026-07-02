@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
-# Self-hosted deployment image for LLM Fit Finder (Node 20.9+, Linux).
-# Build:  docker build -t llm-fit-finder .
+# Self-hosted deployment image for LLMFitCheck (Node 20.9+, Linux).
+# Build:  docker build -t llmfitcheck .
 # Run:    docker run -p 3000:3000 \
-#           -e DATABASE_URL="postgresql://user:pass@host:5432/llmfit" \
+#           -e DATABASE_URL="postgresql://user:pass@host:5432/llmfitcheck" \
 #           -e SYNC_SECRET="your-secret" \
 #           [-e HF_TOKEN="hf_xxx"] \
-#           llm-fit-finder
+#           llmfitcheck
 # Migrate the DB once (from any host with prisma) before first run:
 #   DATABASE_URL=... npx prisma db push
 
