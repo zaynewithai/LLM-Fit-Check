@@ -40,5 +40,11 @@
 - `scripts/sync.ts` → `npm run sync`; `app/api/sync/route.ts` → `POST /api/sync` guarded by `x-sync-secret`
 - Verified: 401 without/wrong secret, 405 on GET, 200 with correct secret; real sync of 31 repos in ~13s (GLM-5.2 744→753.3, Kimi K2 1000→1026.5); lastSyncedAt + SyncLog recorded
 - Removed `server-only` import from db/sync (it breaks tsx scripts; optional per Next docs)
-## Phase 8 — Scheduling + deploy (vercel.json, Dockerfile, README) ⏳
+## Phase 8 — Scheduling + deploy ✅
+- `vercel.json`: daily cron `GET /api/sync` at 04:00 UTC
+- `/api/sync` GET path for Vercel Cron (UA `vercel-cron`-based, since Vercel Cron can't send headers); POST stays header-guarded for manual/system-cron. Verified: non-cron GET → 401, cron-UA GET → 200 (sync runs)
+- `Dockerfile` (multi-stage node:22-alpine) + `.dockerignore` for self-hosted; README documents Vercel + Docker + system-cron
+- Detail page made dynamic (removed generateStaticParams) so container builds need no DB and pages stay fresh after sync
+- README: setup, env, sync, both deploy paths, cron examples, caveats, formula
+- Note: Docker image not built locally (Docker daemon was down); Dockerfile follows the standard multi-stage pattern
 ## Phase 9 — Polish ⏳

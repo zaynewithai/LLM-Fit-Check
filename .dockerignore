@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.gitignore
+.env*
+!.env.example
+*.db
+*.db-journal
+README.md
+PROGRESS.md
+CLAUDE.md
+AGENTS.md
+.vscode
+.idea
+coverage

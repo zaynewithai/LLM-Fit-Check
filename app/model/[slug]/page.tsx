@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, ExternalLink, Calculator } from "lucide-react";
-import { getModelBySlug, getModels } from "@/lib/db";
+import { getModelBySlug } from "@/lib/db";
 import { fmtParamLabel, fmtGB } from "@/lib/format";
 import { computeFootprint, DEFAULT_QUANT, DEFAULT_CONTEXT } from "@/lib/memory";
 import { PerQuantTable } from "@/components/model/per-quant-table";
@@ -12,10 +12,9 @@ export const metadata: Metadata = {
   title: "Model detail",
 };
 
-export async function generateStaticParams() {
-  const models = await getModels();
-  return models.map((m) => ({ slug: m.slug }));
-}
+// Dynamic (not SSG): the catalog auto-syncs from Hugging Face, so detail pages
+// must reflect the latest values at request time. Also avoids requiring DB
+// access at build time (important for containerized builds).
 
 export default async function ModelDetailPage({
   params,
