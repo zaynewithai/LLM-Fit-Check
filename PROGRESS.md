@@ -23,7 +23,13 @@
 - BudgetBar signature element: verdict-colored fill, VRAM boundary marker, hatched overflow + "+X GB over"
 - Summary strip (fast / offloaded / won't-fit counts), sorted list ascending by footprint, staggered row animation
 - Smoke-tested via `next start`: HTTP 200, bars + models render, no runtime errors
-## Phase 5 — Mode B UI ⏳
+## Phase 5 — Mode B UI ✅
+- `/model` (server page, async searchParams) → `ModelCalculator` (client)
+- Source toggle: catalog (accessible searchable combobox `ModelPicker`) or custom (name/total/active)
+- Footprint breakdown + stacked composition bar (weights/KV/overhead)
+- Hardware recommendations → 3 named cards (fast discrete / offloaded / unified Mac) with throughput bucket
+- "Drop a quant level" note when it won't fit a 24 GB GPU at current quant
+- Smoke-tested catalog + custom modes: HTTP 200, hardware/footprint/throughput render, no errors
 ## Phase 6 — Catalog + filters + detail ⏳
 ## Phase 7 — Sync engine (HF → DB) ⏳
 ## Phase 8 — Scheduling + deploy (vercel.json, Dockerfile, README) ⏳
