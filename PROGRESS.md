@@ -12,7 +12,11 @@
 - Prisma schema (`Model` + `SyncLog`) applied; SQLite `dev.db` in sync
 - `lib/seed-data.ts` = the 31-model catalog (single editable file); `prisma/seed.ts` upserts by repo, non-destructive on re-seed
 - `npm run seed` → 31 models, 14 MoE (verified: GLM-5.2 744B/40B, Kimi K2 1000B/32B)
-## Phase 3 — Engine (lib/memory.ts + lib/hardware.ts + tests) ⏳
+## Phase 3 — Engine ✅
+- `lib/memory.ts` (pure): footprint (weights/KV/overhead), verdict (discrete fast/offloaded/won't-fit · unified fast/tight/won't-fit), summary buckets
+- `lib/hardware.ts` (pure): GPU + Mac ladders → named hardware, offload path, throughput bucket
+- 19 vitest unit tests, all green
+- **Spec discrepancy noted:** the §5.1 formula (source of truth) gives 744B @ Q4 = ~442 GB; the DoD's "≈235 GB" actually matches Q2 (~228 GB). Tests assert formula-exact values + the Q2 ≈235 case.
 ## Phase 4 — Mode A UI ⏳
 ## Phase 5 — Mode B UI ⏳
 ## Phase 6 — Catalog + filters + detail ⏳
