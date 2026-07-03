@@ -7,6 +7,7 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL ?? "file:./dev.db",
   hfToken: process.env.HF_TOKEN ?? "",
   syncSecret: process.env.SYNC_SECRET ?? "",
+  adsenseClient: process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "",
 } as const;
 
 export function requireSyncSecret(): string {

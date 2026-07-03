@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Chakra_Petch, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
+import { AdRails } from "@/components/ads/ad-rails";
+import { config } from "@/lib/config";
 
 const chakra = Chakra_Petch({
   variable: "--font-chakra",
@@ -54,14 +57,26 @@ export default function RootLayout({
       className={`${chakra.variable} ${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {config.adsenseClient && (
+          <Script
+            id="adsense"
+            strategy="afterInteractive"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.adsenseClient}`}
+            crossOrigin="anonymous"
+          />
+        )}
         <SiteHeader />
-        <main className="flex-1">{children}</main>
+        <AdRails>{children}</AdRails>
         <footer className="border-t border-[var(--color-line)] px-4 py-6 sm:px-6">
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-1 text-[0.8125rem] text-[var(--color-faint)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 text-[0.8125rem] text-[var(--color-faint)] sm:flex-row sm:items-center sm:justify-between">
             <p>
               Weights are exact · KV cache is an estimate · real GGUF files run ~5–10% larger.
             </p>
-            <p className="num">open-weight models only · auto-synced from Hugging Face</p>
+            <div className="flex items-center gap-3">
+              <a href="/privacy" className="hover:text-[var(--color-muted)]">Privacy</a>
+              <span aria-hidden>·</span>
+              <p className="num">open-weight models only · auto-synced from Hugging Face</p>
+            </div>
           </div>
         </footer>
       </body>

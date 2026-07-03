@@ -6,7 +6,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { execSync } from "node:child_process";
-import { SEED_MODELS, SEED_OVERRIDE } from "../lib/seed-data";
+import { SEED_MODELS } from "../lib/seed-data";
 import { slugify } from "../lib/slug";
 
 function assertPostgres() {
