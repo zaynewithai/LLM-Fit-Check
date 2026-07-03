@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { SlidersHorizontal, X } from "lucide-react";
 import { computeFootprint, computeVerdict } from "@/lib/memory";
@@ -9,6 +9,9 @@ import { fmtGB } from "@/lib/format";
 import { Eyebrow } from "../ui";
 import { Filters, sizeMatch, type CatalogState, CATALOG_DEFAULTS } from "./filters";
 import { ModelCard } from "./model-card";
+import { AdSlot } from "../ads/ad-slot";
+
+const AD_FEED_INTERVAL = 6;
 
 export function CatalogExplorer({
   models,
@@ -157,9 +160,22 @@ export function CatalogExplorer({
           ) : (
             <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
               {items.map((x, i) => (
-                <div key={x.model.slug} className="row-in" style={{ animationDelay: `${Math.min(i * 18, 280)}ms` }}>
-                  <ModelCard model={x.model} fp={x.fp} verdict={x.verdict} quant={s.quant} />
-                </div>
+                <Fragment key={x.model.slug}>
+                  <div className="row-in" style={{ animationDelay: `${Math.min(i * 18, 280)}ms` }}>
+                    <ModelCard model={x.model} fp={x.fp} verdict={x.verdict} quant={s.quant} />
+                  </div>
+                  {(i + 1) % AD_FEED_INTERVAL === 0 && i < items.length - 1 && (
+                    <div className="sm:col-span-2 xl:col-span-3 my-1">
+                      <AdSlot
+                        slot={`llmfitcheck-feed-${Math.floor(i / AD_FEED_INTERVAL)}`}
+                        format="fluid"
+                        responsive={true}
+                        style={{ minHeight: 120 }}
+                        label="Ad · in-feed"
+                      />
+                    </div>
+                  )}
+                </Fragment>
               ))}
             </div>
           )}

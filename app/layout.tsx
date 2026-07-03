@@ -3,7 +3,9 @@ import Script from "next/script";
 import { Chakra_Petch, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
+import { HeaderBanner } from "@/components/ads/header-banner";
 import { AdRails } from "@/components/ads/ad-rails";
+import { MobileStickyAd } from "@/components/ads/mobile-sticky-ad";
 import { config } from "@/lib/config";
 
 const chakra = Chakra_Petch({
@@ -66,7 +68,11 @@ export default function RootLayout({
           />
         )}
         <SiteHeader />
+        <HeaderBanner />
         <AdRails>{children}</AdRails>
+        <MobileStickyAd />
+        {/* spacer so mobile sticky ad doesn't cover footer content */}
+        <div className="h-14 md:hidden" aria-hidden />
         <footer className="border-t border-[var(--color-line)] px-4 py-6 sm:px-6">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 text-[0.8125rem] text-[var(--color-faint)] sm:flex-row sm:items-center sm:justify-between">
             <p>

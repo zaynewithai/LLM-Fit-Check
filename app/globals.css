@@ -72,6 +72,11 @@ body {
   min-height: 100dvh;
 }
 
+/* mobile sticky ad spacing */
+@media (max-width: 767px) {
+  body { padding-bottom: 3.5rem; }
+}
+
 /* typographic defaults */
 h1, h2, h3, h4 {
   font-family: var(--font-display);
