@@ -122,10 +122,19 @@ Or run the script directly from a checkout:
 
 ### Vercel
 
+> **Vercel is serverless** — it has a read-only, ephemeral filesystem, so **SQLite does not work** in production. Use **Vercel Postgres** (free tier covers this app).
+
 1. Push the repo to GitHub and import it on Vercel.
-2. Set environment variables: `DATABASE_URL` (Postgres), `SYNC_SECRET`, optional `HF_TOKEN`.
-3. Vercel detects Next.js automatically. The cron in `vercel.json` runs daily.
-4. Run `npx prisma db push` once against your Postgres (with `DATABASE_URL` set), then `npm run seed`.
+2. **Create a Postgres database**: Vercel dashboard → your project → **Storage** → **Create Database** → **Postgres** → **Connect to Project**. This auto-injects `DATABASE_URL` (a `postgresql://…` string) into the project env vars.
+3. Set the other env vars: `SYNC_SECRET` (any long random string), optional `HF_TOKEN`. The `DATABASE_URL` injected by Vercel Postgres should override any old SQLite value — remove/replace it if you previously set `file:./dev.db`.
+4. **Migrate + seed + sync the Postgres DB once, from your local machine** (Vercel can't run `prisma db push`):
+   ```bash
+   # copy the Postgres connection string from Vercel dashboard → Storage → your db → Connect → Prisma
+   DATABASE_URL="postgresql://...copied-from-vercel..." npx tsx scripts/setup-postgres.ts
+   ```
+   This runs `prisma db push` (creates tables), seeds the catalog, and syncs exact params from Hugging Face.
+5. Deploy (or redeploy) so the latest env vars + schema take effect. The cron in `vercel.json` runs daily.
+
 
 ### Self-hosted (Docker)
 
