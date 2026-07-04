@@ -8,6 +8,7 @@ const links = [
   { href: "/fit", short: "Fit", label: "Hardware → Models" },
   { href: "/model", short: "Model", label: "Model → Hardware" },
   { href: "/catalog", short: "Catalog", label: "Catalog" },
+  { href: "/how-it-works", short: "How", label: "How it works" },
 ] as const;
 
 export function NavLinks() {
