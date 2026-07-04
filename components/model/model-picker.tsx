@@ -21,19 +21,23 @@ export function ModelPicker({
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const selected = models.find((m) => m.slug === value) ?? null;
-
+  // Sort by popularity (downloads desc) so popular models appear first.
+  const sortedModels = useMemo(
+    () => [...models].sort((a, b) => b.downloads - a.downloads),
+    [models],
+  );
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return models;
-    return models.filter(
+    if (!q) return sortedModels;
+    return sortedModels.filter(
       (m) =>
         m.name.toLowerCase().includes(q) ||
         m.family.toLowerCase().includes(q) ||
         m.repo.toLowerCase().includes(q),
     );
-  }, [models, query]);
+  }, [sortedModels, query]);
 
+  const selected = sortedModels.find((m) => m.slug === value) ?? null;
   const safeActive = Math.min(active, Math.max(filtered.length - 1, 0));
   useEffect(() => {
     if (!open) return;

@@ -30,7 +30,7 @@ export default async function HowItWorksPage() {
       <div className="space-y-5 pb-16">
         <FormulaCard />
 
-        <ManualCalculator />
+        <ManualCalculator models={models} />
 
         <ParamsTable models={models} />
 
