@@ -10,6 +10,7 @@
 import { prisma } from "./prisma";
 import { SEED_OVERRIDE } from "./seed-data";
 import { slugify } from "./slug";
+import { fetchHfConfig } from "./hf-config";
 
 const HF_LIST = "https://huggingface.co/api/models";
 const PAGE_LIMIT = 100;
@@ -136,15 +137,24 @@ export async function discoverModels(token: string): Promise<DiscoverResult> {
 
       try {
         const existed = await prisma.model.findUnique({ where: { repo }, select: { id: true } });
+        // Fetch config.json for anatomical KV fields (non-fatal on failure)
+        let hfCfg = null;
+        try { hfCfg = await fetchHfConfig(repo, token); } catch { /* keep null */ }
         await prisma.model.upsert({
           where: { repo },
           create: {
             slug: slugify(repo), name, repo, family, totalParams: totalB, activeParams,
             isMoE, openWeights: true, gated, downloads, likes, createdAt, lastSyncedAt: new Date(),
+            ...(hfCfg
+              ? { numLayers: hfCfg.numLayers, numKvHeads: hfCfg.numKvHeads, numQHeads: hfCfg.numQHeads, headDim: hfCfg.headDim, hiddenSize: hfCfg.hiddenSize }
+              : {}),
           },
           update: {
             name, family, totalParams: totalB, activeParams, isMoE, gated,
             downloads, likes, createdAt, lastSyncedAt: new Date(),
+            ...(hfCfg
+              ? { numLayers: hfCfg.numLayers, numKvHeads: hfCfg.numKvHeads, numQHeads: hfCfg.numQHeads, headDim: hfCfg.headDim, hiddenSize: hfCfg.hiddenSize }
+              : {}),
           },
         });
         if (existed) updated++;

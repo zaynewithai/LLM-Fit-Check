@@ -44,6 +44,11 @@ export interface FootprintInput {
   quant: Quant;
   contextTokens: number;
   kvCacheQuantized: boolean;
+  // Anatomical fields from config.json (optional — when present, enable precise KV).
+  // Null/absent → fall back to the empirical formula (spec §5.1).
+  numLayers?: number | null;
+  numKvHeads?: number | null;
+  headDim?: number | null;
 }
 
 export interface Footprint {
@@ -62,19 +67,54 @@ export function kvPer1k(attnParamsB: number): number {
   return clamp(0.5 * Math.sqrt(attnParamsB / 70), 0.03, 0.9);
 }
 
+// Anatomical KV: KV per token (bytes) = 2 (K+V) × layers × kvHeads × headDim × bytesPerParam
+// bytesPerParam = 2 for fp16; divided by 4 when kvCacheQuantized (q4 KV).
+function anatomicalKvGB(
+  numLayers: number,
+  numKvHeads: number,
+  headDim: number,
+  contextTokens: number,
+  kvCacheQuantized: boolean,
+): number {
+  const bytesPerParam = kvCacheQuantized ? 0.5 : 2; // fp16=2 bytes, q4=0.5 bytes
+  const kvPerTokenBytes = 2 * numLayers * numKvHeads * headDim * bytesPerParam;
+  return (kvPerTokenBytes * contextTokens) / 1e9;
+}
+
 export function computeFootprint(i: FootprintInput): Footprint {
   const bits = BITS_PER_WEIGHT[i.quant];
   const weightsGB = (i.totalParamsB * bits) / 8;
 
   const attnParamsB = i.activeParamsB ?? i.totalParamsB;
-  const per1k = kvPer1k(attnParamsB);
-  let kvGB = per1k * (i.contextTokens / 1000);
-  if (i.kvCacheQuantized) kvGB = kvGB / 4;
+  const hasAnatomical =
+    i.numLayers != null && i.numKvHeads != null && i.headDim != null &&
+    i.numLayers > 0 && i.numKvHeads > 0 && i.headDim > 0;
+
+  let kvGB: number;
+  let per1k: number;
+  if (hasAnatomical) {
+    kvGB = anatomicalKvGB(i.numLayers!, i.numKvHeads!, i.headDim!, i.contextTokens, i.kvCacheQuantized);
+    per1k = (kvGB / (i.contextTokens / 1000)) || 0; // derive per1k for display
+  } else {
+    per1k = kvPer1k(attnParamsB);
+    kvGB = per1k * (i.contextTokens / 1000);
+    if (i.kvCacheQuantized) kvGB = kvGB / 4;
+  }
 
   const overheadGB = 0.15 * (weightsGB + kvGB);
   const totalGB = weightsGB + kvGB + overheadGB;
 
-  return { weightsGB, kvGB, overheadGB, totalGB, kvPer1kGB: per1k, attnParamsB, bits };
+  return {
+    weightsGB,
+    kvGB,
+    overheadGB,
+    totalGB,
+    kvPer1kGB: per1k,
+    attnParamsB,
+    bits,
+    // flag: whether the precise anatomical formula was used
+    kvMethod: hasAnatomical ? "anatomical" : "empirical",
+  } as Footprint & { kvMethod: string };
 }
 
 export interface HardwareConfig {

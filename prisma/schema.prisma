@@ -26,6 +26,13 @@ model Model {
   gated         Boolean   @default(false)
   downloads     Int       @default(0)
   likes         Int       @default(0)
+  // Anatomical fields from config.json (for precise KV cache calculation).
+  // Null when not yet fetched or unavailable — falls back to empirical formula.
+  numLayers     Int?
+  numKvHeads    Int?
+  numQHeads     Int?
+  headDim       Int?
+  hiddenSize    Int?
   createdAt     DateTime?
   lastSyncedAt  DateTime?
 

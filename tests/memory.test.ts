@@ -5,6 +5,7 @@ import {
   computeVerdict,
   computeModelFit,
   verdictBucket,
+  type Footprint,
   type HardwareConfig,
 } from "../lib/memory";
 import { recommendHardware } from "../lib/hardware";
@@ -148,5 +149,59 @@ describe("recommendHardware (Mode B)", () => {
     expect(r.offloadedDiscrete).not.toBeNull();
     expect(r.offloadedDiscrete!.detail).toContain("419 GB system RAM");
     expect(r.unifiedMac.label).toBe("No single Mac fits");
+  });
+});
+
+describe("anatomical KV (precise, from config.json)", () => {
+  // Qwen3-8B config.json: layers=36, kvHeads=8, headDim=128
+  const qwen3_8b_cfg = { numLayers: 36, numKvHeads: 8, headDim: 128 };
+
+  it("matches the manual anatomical formula: 2×layers×kvHeads×headDim×2 bytes × ctx / 1e9", () => {
+    const f = computeFootprint({
+      totalParamsB: 8, activeParamsB: null, quant: "fp16", contextTokens: 32768, kvCacheQuantized: false,
+      ...qwen3_8b_cfg,
+    });
+    // 2 (K+V) × 36 × 8 × 128 × 2 bytes × 32768 / 1e9 = 4.8316 GB
+    expect(f.kvGB).toBeCloseTo(4.832, 2);
+    expect((f as Footprint & { kvMethod: string }).kvMethod).toBe("anatomical");
+  });
+
+  it("kw cache quantization (÷4) applies to anatomical too", () => {
+    const base = computeFootprint({
+      totalParamsB: 8, activeParamsB: null, quant: "fp16", contextTokens: 32768, kvCacheQuantized: false,
+      ...qwen3_8b_cfg,
+    });
+    const q4 = computeFootprint({
+      totalParamsB: 8, activeParamsB: null, quant: "fp16", contextTokens: 32768, kvCacheQuantized: true,
+      ...qwen3_8b_cfg,
+    });
+    // q4 KV → bytesPerParam 2 → 0.5, factor 4x smaller
+    expect(q4.kvGB).toBeCloseTo(base.kvGB / 4, 2);
+  });
+
+  it("falls back to empirical when anatomical fields are absent", () => {
+    const empirical = computeFootprint({
+      totalParamsB: 8, activeParamsB: null, quant: "fp16", contextTokens: 32768, kvCacheQuantized: false,
+    });
+    expect((empirical as Footprint & { kvMethod: string }).kvMethod).toBe("empirical");
+  });
+
+  it("falls back to empirical when anatomical fields are zero/null", () => {
+    const f = computeFootprint({
+      totalParamsB: 8, activeParamsB: null, quant: "fp16", contextTokens: 32768, kvCacheQuantized: false,
+      numLayers: 0, numKvHeads: null, headDim: 128,
+    });
+    expect((f as Footprint & { kvMethod: string }).kvMethod).toBe("empirical");
+  });
+
+  it("total includes weights + anatomical KV + overhead", () => {
+    const f = computeFootprint({
+      totalParamsB: 8, activeParamsB: null, quant: "q4", contextTokens: 32768, kvCacheQuantized: false,
+      ...qwen3_8b_cfg,
+    });
+    // weights = 8 × 4 / 8 = 4 GB; KV = 4.832 GB; overhead = 0.15 × (4 + 4.832) = 1.325
+    expect(f.weightsGB).toBeCloseTo(4, 5);
+    expect(f.kvGB).toBeCloseTo(4.832, 2);
+    expect(f.totalGB).toBeCloseTo(f.weightsGB + f.kvGB + f.overheadGB, 5);
   });
 });

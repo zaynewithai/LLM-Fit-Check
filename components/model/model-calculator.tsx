@@ -75,6 +75,9 @@ export function ModelCalculator({
         totalParams: s.customTotal,
         activeParams: s.customActive > 0 ? s.customActive : null,
         isMoE: s.customActive > 0,
+        numLayers: null,
+        numKvHeads: null,
+        headDim: null,
       };
     }
     const m = models.find((x) => x.slug === s.slug) ?? models[0];
@@ -83,6 +86,9 @@ export function ModelCalculator({
       totalParams: m?.totalParams ?? 0,
       activeParams: m?.activeParams ?? null,
       isMoE: m?.isMoE ?? false,
+      numLayers: m?.numLayers ?? null,
+      numKvHeads: m?.numKvHeads ?? null,
+      headDim: m?.headDim ?? null,
     };
   }, [s, models]);
 
@@ -94,6 +100,9 @@ export function ModelCalculator({
         quant: s.quant,
         contextTokens: s.contextTokens,
         kvCacheQuantized: s.kvCacheQuantized,
+        numLayers: eff.numLayers,
+        numKvHeads: eff.numKvHeads,
+        headDim: eff.headDim,
       }),
     [eff, s.quant, s.contextTokens, s.kvCacheQuantized],
   );

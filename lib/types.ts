@@ -13,6 +13,11 @@ export interface CatalogModel {
   gated: boolean;
   downloads: number;
   likes: number;
+  numLayers: number | null;
+  numKvHeads: number | null;
+  numQHeads: number | null;
+  headDim: number | null;
+  hiddenSize: number | null;
   lastSyncedAt: string | null;
   createdAt: string | null;
 }

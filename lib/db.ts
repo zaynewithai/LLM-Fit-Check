@@ -16,6 +16,11 @@ function toModel(r: {
   gated: boolean;
   downloads: number;
   likes: number;
+  numLayers: number | null;
+  numKvHeads: number | null;
+  numQHeads: number | null;
+  headDim: number | null;
+  hiddenSize: number | null;
   lastSyncedAt: Date | null;
   createdAt: Date | null;
 }): CatalogModel {
@@ -31,6 +36,11 @@ function toModel(r: {
     gated: r.gated,
     downloads: r.downloads,
     likes: r.likes,
+    numLayers: r.numLayers,
+    numKvHeads: r.numKvHeads,
+    numQHeads: r.numQHeads,
+    headDim: r.headDim,
+    hiddenSize: r.hiddenSize,
     lastSyncedAt: r.lastSyncedAt ? r.lastSyncedAt.toISOString() : null,
     createdAt: r.createdAt ? r.createdAt.toISOString() : null,
   };

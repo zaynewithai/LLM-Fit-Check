@@ -6,6 +6,7 @@
 import { prisma } from "./prisma";
 import { config } from "./config";
 import { discoverModels } from "./discover";
+import { fetchHfConfig } from "./hf-config";
 
 export interface SyncError {
   repo: string;
@@ -108,6 +109,8 @@ export async function syncCatalog(
           errors.push({ repo: m.repo, reason: "no safetensors.total exposed" });
         } else {
           const totalB = Math.round((total / 1e9) * 10) / 10;
+          // Fetch config.json for anatomical KV fields (non-fatal on failure)
+          const hfCfg = await fetchHfConfig(m.repo, token);
           await prisma.model.update({
             where: { id: m.id },
             data: {
@@ -116,6 +119,15 @@ export async function syncCatalog(
               createdAt: r.data?.createdAt ? new Date(r.data.createdAt) : null,
               downloads: r.data?.downloads ?? 0,
               likes: r.data?.likes ?? 0,
+              ...(hfCfg
+                ? {
+                    numLayers: hfCfg.numLayers,
+                    numKvHeads: hfCfg.numKvHeads,
+                    numQHeads: hfCfg.numQHeads,
+                    headDim: hfCfg.headDim,
+                    hiddenSize: hfCfg.hiddenSize,
+                  }
+                : {}),
               lastSyncedAt: new Date(),
             },
           });
