@@ -62,7 +62,7 @@ export default function RootLayout({
         {config.adsenseClient && (
           <Script
             id="adsense"
-            strategy="afterInteractive"
+            strategy="beforeInteractive"
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.adsenseClient}`}
             crossOrigin="anonymous"
           />
