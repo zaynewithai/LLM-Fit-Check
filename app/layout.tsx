@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Chakra_Petch, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
@@ -58,15 +57,16 @@ export default function RootLayout({
       lang="en"
       className={`${chakra.variable} ${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <head>
         {config.adsenseClient && (
-          <Script
-            id="adsense"
-            strategy="beforeInteractive"
+          <script
+            async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.adsenseClient}`}
             crossOrigin="anonymous"
           />
         )}
+      </head>
+      <body className="min-h-full flex flex-col">
         <SiteHeader />
         <HeaderBanner />
         <AdRails>{children}</AdRails>
